@@ -34,7 +34,12 @@ def index():
             f"--export-filename={output_path}"
         ]
 
-        subprocess.run(cmd, check=True)
+        try:
+    subprocess.run(cmd, check=True)
+except FileNotFoundError:
+    return "Conversion service is not available on this server."
+except Exception as e:
+    return f"Conversion failed: {e}"
 
         return send_file(output_path, as_attachment=True)
 
@@ -44,6 +49,7 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
