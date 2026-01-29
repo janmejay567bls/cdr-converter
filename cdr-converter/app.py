@@ -28,11 +28,14 @@ def index():
 
         # Inkscape conversion
         cmd = [
-            "inkscape",
-            input_path,
-            f"--export-type={output_type}",
-            f"--export-filename={output_path}"
-        ]
+    "inkscape",
+    input_path,
+    f"--export-type={output_type}",
+    f"--export-filename={output_path}"
+]
+
+subprocess.run(cmd, check=True)
+
 
         try:
     subprocess.run(cmd, check=True)
@@ -49,6 +52,7 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
