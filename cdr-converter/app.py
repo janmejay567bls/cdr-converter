@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request
 import os
 import subprocess
 import uuid
@@ -14,8 +14,8 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        file = request.files["cdr_file"]
-        output_type = request.form["format"]
+        file = request.files.get("cdr_file")
+        output_type = request.form.get("format")
 
         if not file:
             return "No file uploaded"
@@ -26,34 +26,20 @@ def index():
 
         output_path = os.path.join(OUTPUT_FOLDER, uid + "." + output_type)
 
-        # Inkscape conversion
-        cmd = [
-    "inkscape",
-    input_path,
-    f"--export-type={output_type}",
-    f"--export-filename={output_path}"
-]
-
-subprocess.run(cmd, check=True)
-
-
+        # Inkscape conversion (disabled on Render)
         try:
-    subprocess.run(cmd, check=True)
-except FileNotFoundError:
-    return "Conversion service is not available on this server."
-except Exception as e:
-    return f"Conversion failed: {e}"
-
-        return send_file(output_path, as_attachment=True)
+            cmd = [
+                "inkscape",
+                input_path,
+                f"--export-type={output_type}",
+                f"--export-filename={output_path}"
+            ]
+            subprocess.run(cmd, check=True)
+            return "Conversion completed (local/VPS only)"
+        except Exception as e:
+            return f"Conversion not available on this server: {e}"
 
     return render_template("index.html")
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-
-
-
-
-
+    app.run()
